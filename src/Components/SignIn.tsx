@@ -1,20 +1,16 @@
 import * as React from 'react';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
-import Checkbox from '@mui/material/Checkbox';
 import CssBaseline from '@mui/material/CssBaseline';
-import FormControlLabel from '@mui/material/FormControlLabel';
-import Divider from '@mui/material/Divider';
 import FormLabel from '@mui/material/FormLabel';
 import FormControl from '@mui/material/FormControl';
-import Link from '@mui/material/Link';
+import {Link, redirect, useNavigate} from 'react-router-dom';
 import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
 import Stack from '@mui/material/Stack';
 import MuiCard from '@mui/material/Card';
 import { styled } from '@mui/material/styles';
-import ForgotPassword from './ForgotPassword';
-import { GoogleIcon, FacebookIcon, SitemarkIcon } from './CustomIcons';
+import { authProvider } from '../auth';
 
 const Card = styled(MuiCard)(({ theme }) => ({
   display: 'flex',
@@ -37,45 +33,30 @@ const Card = styled(MuiCard)(({ theme }) => ({
 
 const SignInContainer = styled(Stack)(({ theme }) => ({
   padding: 20,
-  marginTop: '10vh',
-  '&::before': {
-    content: '""',
-    display: 'block',
-    position: 'absolute',
-    zIndex: -1,
-    inset: 0,
-    backgroundImage:
-      'radial-gradient(ellipse at 50% 50%, hsl(210, 100%, 97%), hsl(0, 0%, 100%))',
-    backgroundRepeat: 'no-repeat',
-    ...theme.applyStyles('dark', {
-      backgroundImage:
-        'radial-gradient(at 50% 50%, hsla(210, 100%, 16%, 0.5), hsl(220, 30%, 5%))',
-    }),
-  },
 }));
 
-export default function SignIn(props: { disableCustomTheme?: boolean }) {
+export default function SignIn(props: { disableCustomTheme?: boolean, isLogin: boolean }) {
   const [emailError, setEmailError] = React.useState(false);
   const [emailErrorMessage, setEmailErrorMessage] = React.useState('');
   const [passwordError, setPasswordError] = React.useState(false);
   const [passwordErrorMessage, setPasswordErrorMessage] = React.useState('');
-  const [open, setOpen] = React.useState(false);
+  const [isLogin, setIsLogin] = React.useState(props.isLogin);
+  const navigate = useNavigate();
 
-  const handleClickOpen = () => {
-    setOpen(true);
-  };
-
-  const handleClose = () => {
-    setOpen(false);
-  };
-
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
-    console.log({
-      email: data.get('email'),
-      password: data.get('password'),
-    });
+
+    try {
+      await authProvider.login(data.get('email') as string, data.get('password') as string);
+    } catch (error: any) {
+      console.log(error);
+      setEmailError(true);
+      setEmailErrorMessage(error.message);
+      return null;
+    }
+  
+    navigate("/");
   };
 
   const validateInputs = () => {
@@ -84,18 +65,21 @@ export default function SignIn(props: { disableCustomTheme?: boolean }) {
 
     let isValid = true;
 
-    if (!email.value || !/\S+@\S+\.\S+/.test(email.value)) {
-      setEmailError(true);
-      setEmailErrorMessage('Please enter a valid email address.');
-      isValid = false;
-    } else {
-      setEmailError(false);
-      setEmailErrorMessage('');
-    }
+    // if (!email.value || !/\S+@\S+\.\S+/.test(email.value)) {
+    //   setEmailError(true);
+    //   setEmailErrorMessage('Please enter a valid email address.');
+    //   isValid = false;
+    // } else {
+    //   setEmailError(false);
+    //   setEmailErrorMessage('');
+    // }
 
-    if (!password.value || password.value.length < 6) {
+    setEmailError(false);
+    setEmailErrorMessage('');
+
+    if (!password.value || password.value.length < 4) {
       setPasswordError(true);
-      setPasswordErrorMessage('Password must be at least 6 characters long.');
+      setPasswordErrorMessage('Password must be at least 4 characters long.');
       isValid = false;
     } else {
       setPasswordError(false);
@@ -108,15 +92,14 @@ export default function SignIn(props: { disableCustomTheme?: boolean }) {
   return (
     <>
         <CssBaseline enableColorScheme />
-        <SignInContainer direction="column" justifyContent="space-between">
+        <SignInContainer height='100vh' direction="column" justifyContent="space-between" alignItems='center'>
             <Card variant="outlined">
-            <SitemarkIcon />
             <Typography
                 component="h1"
                 variant="h4"
                 sx={{ width: '100%', fontSize: 'clamp(2rem, 10vw, 2.15rem)' }}
             >
-                Sign in
+                {isLogin?"Login":"Register"}
             </Typography>
             <Box
                 component="form"
@@ -150,14 +133,6 @@ export default function SignIn(props: { disableCustomTheme?: boolean }) {
                 <FormControl>
                 <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
                     <FormLabel htmlFor="password">Password</FormLabel>
-                    <Link
-                    component="button"
-                    onClick={handleClickOpen}
-                    variant="body2"
-                    sx={{ alignSelf: 'baseline' }}
-                    >
-                    Forgot your password?
-                    </Link>
                 </Box>
                 <TextField
                     error={passwordError}
@@ -174,52 +149,24 @@ export default function SignIn(props: { disableCustomTheme?: boolean }) {
                     color={passwordError ? 'error' : 'primary'}
                 />
                 </FormControl>
-                <FormControlLabel
-                control={<Checkbox value="remember" color="primary" />}
-                label="Remember me"
-                />
-                <ForgotPassword open={open} handleClose={handleClose} />
                 <Button
                 type="submit"
                 fullWidth
                 variant="contained"
                 onClick={validateInputs}
                 >
-                Sign in
+                {isLogin?"Log in":"Register"}
                 </Button>
                 <Typography sx={{ textAlign: 'center' }}>
-                Don&apos;t have an account?{' '}
+                {isLogin?"Don\'t have an account? ":"Already have an account? "}
                 <span>
                     <Link
-                    href="/material-ui/getting-started/templates/sign-in/"
-                    variant="body2"
-                    sx={{ alignSelf: 'center' }}
+                    to={isLogin?"/register":"/login"}
                     >
-                    Sign up
+                      {isLogin?"Register":"Login"}
                     </Link>
                 </span>
                 </Typography>
-            </Box>
-            <Divider>or</Divider>
-            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-                <Button
-                type="submit"
-                fullWidth
-                variant="outlined"
-                onClick={() => alert('Sign in with Google')}
-                startIcon={<GoogleIcon />}
-                >
-                Sign in with Google
-                </Button>
-                <Button
-                type="submit"
-                fullWidth
-                variant="outlined"
-                onClick={() => alert('Sign in with Facebook')}
-                startIcon={<FacebookIcon />}
-                >
-                Sign in with Facebook
-                </Button>
             </Box>
             </Card>
         </SignInContainer>

@@ -3,9 +3,9 @@ import { authProvider } from "../../auth";
 import { LoaderFunctionArgs, redirect, useFetcher, useRouteLoaderData } from "react-router-dom";
 import SignIn from "../../Components/SignIn";
 
-export default function Login() {
+export default function Register() {
   return (
-    <SignIn isLogin={true}/>
+    <SignIn isLogin={false}/>
   );
 }
 

@@ -11,10 +11,11 @@ import {
   redirect
 } from "react-router-dom";
 import ErrorPage from './Screens/Error/ErrorPage';
-import { fakeAuthProvider } from "./auth";
+import { authProvider } from "./auth";
 import Login, { loginAction, loginLoader } from './Screens/Login/Login';
-import ProtectedPage, { protectedLoader } from './Screens/Protected/ProtectedPage';
-import PublicPage from './Screens/Public/PublicPage';
+import { protectedLoader } from './Screens/Protected/ProtectedPage';
+import Register from './Screens/Register/Register';
+import CreatePoint from './Screens/CreatePoint/CreatePoint';
 
 const router = createBrowserRouter([
   {
@@ -22,14 +23,15 @@ const router = createBrowserRouter([
     path: "/",
     loader() {
       // Our root route always provides the user, if logged in
-      return { user: fakeAuthProvider.username };
+      return { user: authProvider.username };
     },
     Component: App,
     errorElement: <ErrorPage/>,
     children: [
       {
         index: true,
-        Component: PublicPage,
+        loader: protectedLoader,
+        Component: CreatePoint,
       },
       {
         path: "login",
@@ -38,17 +40,18 @@ const router = createBrowserRouter([
         Component: Login,
       },
       {
-        path: "protected",
-        loader: protectedLoader,
-        Component: ProtectedPage,
-      },
+        path: "register",
+        action: loginAction,
+        loader: loginLoader,
+        Component: Register,
+      }
     ]
   },
   {
     path: "/logout",
     async action() {
       // We signout in a "resource route" that we can hit from a fetcher.Form
-      await fakeAuthProvider.signout();
+      await authProvider.signout();
       return redirect("/");
     },
   }
