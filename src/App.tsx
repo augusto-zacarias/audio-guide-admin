@@ -1,26 +1,19 @@
 import React from 'react';
-import logo from './logo.svg';
 import './App.css';
+import { Link,Outlet } from 'react-router-dom';
+import SignIn from './Components/SignIn';
 
 function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div>
+      This is the home screen
+      <Link to='/login'>go login</Link>
+      <Link to='/protected'>go proteceted</Link>
+      <Link to='/'>go home</Link>
+      <Outlet />
     </div>
   );
 }
+
 
 export default App;
