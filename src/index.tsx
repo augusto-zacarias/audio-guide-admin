@@ -16,6 +16,7 @@ import Login, { loginAction, loginLoader } from './Screens/Login/Login';
 import { protectedLoader } from './Screens/Protected/ProtectedPage';
 import Register from './Screens/Register/Register';
 import CreatePoint from './Screens/CreatePoint/CreatePoint';
+import ListPoints from './Screens/ListPoints/ListPoints';
 
 const router = createBrowserRouter([
   {
@@ -30,8 +31,17 @@ const router = createBrowserRouter([
     children: [
       {
         index: true,
+        loader: protectedLoader
+      },
+      {
+        path: "point",
         loader: protectedLoader,
         Component: CreatePoint,
+      },
+      {
+        path: "list",
+        loader: protectedLoader,
+        Component: ListPoints,
       },
       {
         path: "login",

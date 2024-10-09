@@ -2,11 +2,12 @@ import { jwtDecode } from 'jwt-decode';
 import {login,register} from './Services/backend';
 import Cookies from 'js-cookie';
 interface AuthProvider {
-isAuthenticated: boolean;
-username: null | string;
-login(username: string,password: string): Promise<void>;
-signout(): Promise<void>;
-checkAuthenticated: ()=>void;
+    isAuthenticated: boolean;
+    username: null | string;
+    token: null | string;
+    login(username: string,password: string): Promise<void>;
+    signout(): Promise<void>;
+    checkAuthenticated: ()=>void;
 }
   
 /**
@@ -15,6 +16,7 @@ checkAuthenticated: ()=>void;
 export const authProvider: AuthProvider = {
 isAuthenticated: false,
 username: null,
+token: null,
 async login(username: string,password: string) {
     let token;
     try {
@@ -35,6 +37,7 @@ async login(username: string,password: string) {
     }
     authProvider.isAuthenticated = true;
     authProvider.username = username;
+    authProvider.token = token;
     Cookies.set('token',token,{expires:new Date(decodedToken.exp * 1000)})
 },
 async signout() {
@@ -50,5 +53,6 @@ checkAuthenticated() {
     const decodedToken: any = jwtDecode(loggedInCookie);
     authProvider.isAuthenticated = true;
     authProvider.username = decodedToken.username;
+    authProvider.token = loggedInCookie;
 }
 };
